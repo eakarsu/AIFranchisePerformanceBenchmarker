@@ -1,5 +1,7 @@
 const sequelize = require('../config/database');
 const User = require('./User');
+const AiResult = require('./AiResult');
+const { ChatSession, ChatMessage } = require('./ChatSession');
 const FranchiseUnit = require('./FranchiseUnit');
 const RevenueRecord = require('./RevenueRecord');
 const Competitor = require('./Competitor');
@@ -15,6 +17,8 @@ const ComplianceRecord = require('./ComplianceRecord');
 const TripPlan = require('./TripPlan');
 const BenchmarkReport = require('./BenchmarkReport');
 const FranchiseValuation = require('./FranchiseValuation');
+const AlertRecord = require('./AlertRecord');
+const Goal = require('./Goal');
 
 // Associations
 FranchiseUnit.hasMany(RevenueRecord, { foreignKey: 'franchiseUnitId' });
@@ -41,6 +45,9 @@ FranchiseValuation.belongsTo(FranchiseUnit, { foreignKey: 'franchiseUnitId' });
 module.exports = {
   sequelize,
   User,
+  AiResult,
+  ChatSession,
+  ChatMessage,
   FranchiseUnit,
   RevenueRecord,
   Competitor,
@@ -55,5 +62,7 @@ module.exports = {
   ComplianceRecord,
   TripPlan,
   BenchmarkReport,
-  FranchiseValuation
+  FranchiseValuation,
+  AlertRecord,
+  Goal
 };

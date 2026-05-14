@@ -217,6 +217,17 @@ export default function AppLayout({ features }) {
               {getIcon('ai')}
               <span>AI Assistant</span>
             </NavLink>
+            <NavLink
+              to="/ai-benchmark"
+              className={({ isActive }) => `sidebar-item ${isActive ? 'active' : ''}`}
+              style={{
+                background: 'linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.2))',
+                borderLeft: '3px solid #8b5cf6'
+              }}
+            >
+              {getIcon('bar-chart')}
+              <span>AI Benchmark</span>
+            </NavLink>
           </div>
         </div>
 
