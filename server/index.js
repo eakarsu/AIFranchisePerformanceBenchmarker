@@ -788,6 +788,7 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().t
 app.use('/api/territory-optimization', require('./routes/territoryOptimization'));
 app.use('/api/brand-standard-audit', require('./routes/brandStandardAudit'));
 app.use('/api/peer-mentoring', require('./routes/peerMentoring'));
+app.use('/api/royalty-leakage', require('./routes/royaltyLeakage'));
 
 app.use((err, req, res, next) => {
   console.error('[error]', err.message);

@@ -10,6 +10,7 @@ import AIBenchmarkPage from './pages/AIBenchmarkPage';
 import AlertsPage from './pages/AlertsPage';
 import GoalsPage from './pages/GoalsPage';
 import ExtensionsPage from './pages/ExtensionsPage'; // Apply pass 5
+import RoyaltyLeakagePage from './pages/RoyaltyLeakagePage';
 
 // === Batch 04 Gaps & Frontend Mounts ===
 import CfAgenticComplianceAuditorReviewingPls from './pages/CfAgenticComplianceAuditorReviewingPls';
@@ -27,6 +28,11 @@ import GapNoPaymentbillingIntegration from './pages/GapNoPaymentbillingIntegrati
 import GapNoRealTimeWebsocketDashboardUpdates from './pages/GapNoRealTimeWebsocketDashboardUpdates';
 import GapNoVendorContractManagement from './pages/GapNoVendorContractManagement';
 import GapNoFranchiseeOnboardingWorkflow from './pages/GapNoFranchiseeOnboardingWorkflow';
+
+import CodexCustomVizFeature from './pages/CodexCustomVizFeature';
+import CodexOperationsFeature from './pages/CodexOperationsFeature';
+
+import TimelineView from './pages/TimelineView';
 
 const features = [
   { key: 'franchise-units', label: 'Franchise Units', icon: 'building' },
@@ -46,6 +52,7 @@ const features = [
   { key: 'franchise-valuations', label: 'Franchise Valuation', icon: 'gem' },
   { key: 'alert-records', label: 'Alerts', icon: 'shield' },
   { key: 'goals', label: 'OKR Goals', icon: 'target' },
+  { key: 'royalty-leakage', label: 'Royalty Leakage', icon: 'dollar' },
 ];
 
 function ProtectedRoute({ children }) {
@@ -59,6 +66,10 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
+        <Route path="/insights/timeline" element={<ProtectedRoute><TimelineView /></ProtectedRoute>} />
+        <Route path="/codex/custom-viz" element={<ProtectedRoute><CodexCustomVizFeature /></ProtectedRoute>} />
+        <Route path="/codex/operations" element={<ProtectedRoute><CodexOperationsFeature /></ProtectedRoute>} />
+
           <Route path="/login" element={<Login />} />
           <Route path="/" element={
             <ProtectedRoute>
@@ -70,6 +81,7 @@ export default function App() {
               <Route key={f.key} path={f.key} element={
                 f.key === 'alert-records' ? <AlertsPage /> :
                 f.key === 'goals' ? <GoalsPage /> :
+                f.key === 'royalty-leakage' ? <RoyaltyLeakagePage /> :
                 <FeaturePage feature={f} />
               } />
             ))}
