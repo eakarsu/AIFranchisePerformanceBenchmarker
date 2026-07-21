@@ -16,17 +16,6 @@ const aiResultsRoutes = require('./routes/aiResults');
 const extensionsRoutes = require('./routes/extensions'); // Apply pass 5
 const auth = require('./middleware/auth');
 const { aiRateLimiter } = require('./middleware/rateLimiter');
-
-// === Batch 04 Gaps & Frontend Mounts ===
-const route_gap_no_territory_optimization_ai_consolidati = require('./routes/gap-no-territory-optimization-ai-consolidati');
-const route_gap_no_franchisee_ltv_or_churn_prediction = require('./routes/gap-no-franchisee-ltv-or-churn-prediction');
-const route_gap_no_marketing_spend_optimizer_across_unit = require('./routes/gap-no-marketing-spend-optimizer-across-unit');
-const route_gap_no_multi_unit_demand_forecasting = require('./routes/gap-no-multi-unit-demand-forecasting');
-const route_gap_no_franchise_units_crud_surfaced_as = require('./routes/gap-no-franchise-units-crud-surfaced-as');
-const route_gap_no_paymentbilling_integration = require('./routes/gap-no-paymentbilling-integration');
-const route_gap_no_real_time_websocket_dashboard_updates = require('./routes/gap-no-real-time-websocket-dashboard-updates');
-const route_gap_no_vendor_contract_management = require('./routes/gap-no-vendor-contract-management');
-const route_gap_no_franchisee_onboarding_workflow = require('./routes/gap-no-franchisee-onboarding-workflow');
 const app = express();
 const PORT = process.env.BACKEND_PORT || 3001;
 
@@ -47,6 +36,9 @@ app.use(express.json({ limit: '2mb' }));
 // Boot-time validation
 if (!process.env.OPENROUTER_API_KEY) {
   console.warn('[boot] WARNING: OPENROUTER_API_KEY missing — AI endpoints will return 500.');
+}
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 32) {
+  throw new Error('JWT_SECRET must be configured with at least 32 characters');
 }
 
 // Auth routes
@@ -78,6 +70,7 @@ app.use('/api/ai-results', aiResultsRoutes);
 
 // Apply pass 5 — backlog (POS, SOP RAG, P&L roll-up, messaging, audit, mentorship, supplier)
 app.use('/api/extensions', extensionsRoutes);
+app.use('/api/performance-workflow', auth, require('./routes/governedPerformance')(sequelize));
 
 // ── Tool-calling enabled AI chat ──
 const TOOL_REGISTRY = {
@@ -799,23 +792,6 @@ async function start() {
   try {
     await sequelize.authenticate();
     console.log('Database connected successfully');
-    await AiResult.sync({ alter: false });
-    await ChatSession.sync({ alter: false });
-    await ChatMessage.sync({ alter: false });
-    await AlertRecord.sync({ alter: false });
-    await Goal.sync({ alter: false });
-    console.log('[DB] tables ready.');
-    
-app.use('/api/gap-no-territory-optimization-ai-consolidati', route_gap_no_territory_optimization_ai_consolidati);
-app.use('/api/gap-no-franchisee-ltv-or-churn-prediction', route_gap_no_franchisee_ltv_or_churn_prediction);
-app.use('/api/gap-no-marketing-spend-optimizer-across-unit', route_gap_no_marketing_spend_optimizer_across_unit);
-app.use('/api/gap-no-multi-unit-demand-forecasting', route_gap_no_multi_unit_demand_forecasting);
-app.use('/api/gap-no-franchise-units-crud-surfaced-as', route_gap_no_franchise_units_crud_surfaced_as);
-app.use('/api/gap-no-paymentbilling-integration', route_gap_no_paymentbilling_integration);
-app.use('/api/gap-no-real-time-websocket-dashboard-updates', route_gap_no_real_time_websocket_dashboard_updates);
-app.use('/api/gap-no-vendor-contract-management', route_gap_no_vendor_contract_management);
-app.use('/api/gap-no-franchisee-onboarding-workflow', route_gap_no_franchisee_onboarding_workflow);
-
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
   } catch (err) {
     console.error('Failed to start server:', err);
