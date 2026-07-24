@@ -20,6 +20,12 @@ const {
   FranchiseValuation
 } = require('./models');
 
+function requireDemoPassword() {
+  const password = process.env.DEMO_PASSWORD || process.env.SEED_DEMO_PASSWORD || process.env.DEMO_SEED_PASSWORD || '';
+  if (password.length < 12 || password.length > 1024) throw new Error('DEMO_PASSWORD must contain 12-1024 characters');
+  return password;
+}
+
 async function seed() {
   try {
     console.log('Connecting to database...');
@@ -33,22 +39,22 @@ async function seed() {
     // ===== 1. Users (16) =====
     console.log('Seeding Users...');
     await User.bulkCreate([
-      { email: 'admin@franchise.com', password: 'password123', name: 'Admin User', role: 'admin' },
-      { email: 'jthompson@franchise.com', password: 'password123', name: 'James Thompson', role: 'operator' },
-      { email: 'mgarcia@franchise.com', password: 'password123', name: 'Maria Garcia', role: 'operator' },
-      { email: 'rjohnson@franchise.com', password: 'password123', name: 'Robert Johnson', role: 'manager' },
-      { email: 'achen@franchise.com', password: 'password123', name: 'Angela Chen', role: 'manager' },
-      { email: 'dwilliams@franchise.com', password: 'password123', name: 'David Williams', role: 'operator' },
-      { email: 'spatel@franchise.com', password: 'password123', name: 'Sanjay Patel', role: 'operator' },
-      { email: 'lbrown@franchise.com', password: 'password123', name: 'Linda Brown', role: 'analyst' },
-      { email: 'kmiller@franchise.com', password: 'password123', name: 'Kevin Miller', role: 'analyst' },
-      { email: 'jlee@franchise.com', password: 'password123', name: 'Jennifer Lee', role: 'operator' },
-      { email: 'tharris@franchise.com', password: 'password123', name: 'Thomas Harris', role: 'manager' },
-      { email: 'nwilson@franchise.com', password: 'password123', name: 'Nancy Wilson', role: 'operator' },
-      { email: 'cmartin@franchise.com', password: 'password123', name: 'Carlos Martin', role: 'operator' },
-      { email: 'eroberts@franchise.com', password: 'password123', name: 'Emily Roberts', role: 'analyst' },
-      { email: 'bclark@franchise.com', password: 'password123', name: 'Brian Clark', role: 'manager' },
-      { email: 'akim@franchise.com', password: 'password123', name: 'Amy Kim', role: 'operator' }
+      { email: 'admin@franchise.com', password: requireDemoPassword(), name: 'Admin User', role: 'admin' },
+      { email: 'jthompson@franchise.com', password: requireDemoPassword(), name: 'James Thompson', role: 'operator' },
+      { email: 'mgarcia@franchise.com', password: requireDemoPassword(), name: 'Maria Garcia', role: 'operator' },
+      { email: 'rjohnson@franchise.com', password: requireDemoPassword(), name: 'Robert Johnson', role: 'manager' },
+      { email: 'achen@franchise.com', password: requireDemoPassword(), name: 'Angela Chen', role: 'manager' },
+      { email: 'dwilliams@franchise.com', password: requireDemoPassword(), name: 'David Williams', role: 'operator' },
+      { email: 'spatel@franchise.com', password: requireDemoPassword(), name: 'Sanjay Patel', role: 'operator' },
+      { email: 'lbrown@franchise.com', password: requireDemoPassword(), name: 'Linda Brown', role: 'analyst' },
+      { email: 'kmiller@franchise.com', password: requireDemoPassword(), name: 'Kevin Miller', role: 'analyst' },
+      { email: 'jlee@franchise.com', password: requireDemoPassword(), name: 'Jennifer Lee', role: 'operator' },
+      { email: 'tharris@franchise.com', password: requireDemoPassword(), name: 'Thomas Harris', role: 'manager' },
+      { email: 'nwilson@franchise.com', password: requireDemoPassword(), name: 'Nancy Wilson', role: 'operator' },
+      { email: 'cmartin@franchise.com', password: requireDemoPassword(), name: 'Carlos Martin', role: 'operator' },
+      { email: 'eroberts@franchise.com', password: requireDemoPassword(), name: 'Emily Roberts', role: 'analyst' },
+      { email: 'bclark@franchise.com', password: requireDemoPassword(), name: 'Brian Clark', role: 'manager' },
+      { email: 'akim@franchise.com', password: requireDemoPassword(), name: 'Amy Kim', role: 'operator' }
     ], { individualHooks: true });
     console.log('Users seeded.');
 
