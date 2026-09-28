@@ -90,7 +90,7 @@ const Login = () => {
             type="button"
             onClick={handleAutoFill}
           >
-            Auto-Fill Credentials
+            Auto Fill Demo Credentials
           </button>
         </form>
       </div>
