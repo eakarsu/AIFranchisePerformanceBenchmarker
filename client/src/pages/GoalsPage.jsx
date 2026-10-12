@@ -17,7 +17,7 @@ export default function GoalsPage() {
     try {
       const r = await getAll('goals');
       const payload = r.data;
-      setGoals(payload.data || []);
+      setGoals(Array.isArray(payload) ? payload : Array.isArray(payload?.data) ? payload.data : []);
     } catch (e) { console.error(e); }
     setLoading(false);
   };

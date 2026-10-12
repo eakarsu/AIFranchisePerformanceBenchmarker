@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { aiChat, streamChat, listChatSessions, getChatMessages } from '../services/api';
 import ReactMarkdown from 'react-markdown';
+import FormattedAIReport from '../components/FormattedAIReport';
 
 const quickActions = [
   'Analyze Portfolio Performance',
@@ -122,10 +123,10 @@ export default function AICenter() {
 
       <div className="quick-actions">
         {quickActions.map((prompt) => (
-          <button
+          <button type="button"
             key={prompt}
             className="btn-ai"
-            onClick={() => send(prompt)}
+            onClick={() => { setInput(prompt); setUseTools(false); setUseStreaming(true); }}
             disabled={loading}
           >
             {prompt}
@@ -141,7 +142,9 @@ export default function AICenter() {
           >
             {msg.role === 'assistant' ? (
               <div className="ai-output">
-                <ReactMarkdown>{msg.content}</ReactMarkdown>
+                {/^\s*(?:\{|\[|```json)/i.test(msg.content || '')
+                  ? <FormattedAIReport response={msg.content} title="AI response" />
+                  : <ReactMarkdown>{msg.content}</ReactMarkdown>}
               </div>
             ) : (
               <div className="user-bubble">{msg.content}</div>

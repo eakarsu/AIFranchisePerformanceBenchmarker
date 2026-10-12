@@ -33,8 +33,15 @@ const Login = () => {
   };
 
   const handleAutoFill = () => {
-    setEmail(import.meta.env.VITE_DEMO_EMAIL || '');
-    setPassword(import.meta.env.VITE_DEMO_PASSWORD || '');
+    const demoEmail = import.meta.env.VITE_DEMO_EMAIL;
+    const demoPassword = import.meta.env.VITE_DEMO_PASSWORD;
+    if (!demoEmail || !demoPassword) {
+      setError('Demo credentials are not configured for this client. Ask the administrator for access.');
+      return;
+    }
+    setError('');
+    setEmail(demoEmail);
+    setPassword(demoPassword);
   };
 
   return (
@@ -90,7 +97,7 @@ const Login = () => {
             type="button"
             onClick={handleAutoFill}
           >
-            Auto Fill Demo Credentials
+            Fill Demo Credentials
           </button>
         </form>
       </div>

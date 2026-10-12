@@ -1,3 +1,6 @@
+import NativeAIControls from "../components/NativeAIControls";
+import useNativeAIRequest from "../components/useNativeAIRequest";
+import FormattedAIReport from "../components/FormattedAIReport";
 import { useState } from 'react';
 import api from '../services/api';
 
@@ -76,16 +79,16 @@ function ResultBlock({ result, error }) {
       ) : null}
 
       <details style={{ marginTop: 12 }}>
-        <summary style={{ cursor: 'pointer', fontSize: 12, color: '#6b7280' }}>Raw response</summary>
-        <pre style={{ background: '#0f172a', color: '#e2e8f0', padding: 12, borderRadius: 6, overflow: 'auto', fontSize: 12 }}>
-          {JSON.stringify(result, null, 2)}
-        </pre>
+        <summary style={{ cursor: 'pointer', fontSize: 12, color: '#6b7280' }}>Complete report</summary>
+        <FormattedAIReport response={result} />
       </details>
     </div>
   );
 }
 
 export default function AIBenchmarkPage() {
+  const nativeAIRequest = useNativeAIRequest();
+
   const [tab, setTab] = useState('unit-rank');
   const [metric, setMetric] = useState('composite');
   const [horizonMonths, setHorizonMonths] = useState(6);
@@ -101,7 +104,7 @@ export default function AIBenchmarkPage() {
   const run = async (path, body) => {
     setLoading(true); setError(''); setResult(null);
     try {
-      const res = await api.post(path, body);
+      const res = await nativeAIRequest.run((signal) => api.post(path, body, { signal }));
       setResult(res.data);
     } catch (e) {
       const status = e.response?.status;
@@ -117,7 +120,7 @@ export default function AIBenchmarkPage() {
   };
 
   return (
-    <div style={{ padding: '24px 28px', maxWidth: 980 }}>
+    <NativeAIControls busy={nativeAIRequest.busy} onCancel={nativeAIRequest.cancel} context="Franchise Performance Benchmarker"><div style={{ padding: '24px 28px', maxWidth: 980 }}>
       <h1 style={{ marginTop: 0 }}>AI Benchmarking</h1>
       <p style={{ color: '#6b7280', marginBottom: 16 }}>
         Rank units by composite, revenue, margin, or rating; or run a predictive closure-risk scan.
@@ -160,7 +163,7 @@ export default function AIBenchmarkPage() {
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 12 }}>
               <div style={{ flex: 1, minWidth: 220 }}>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 4, color: '#374151' }}>Metric</label>
-                <select
+                <select data-ai-field="metric"
                   value={metric}
                   onChange={(e) => setMetric(e.target.value)}
                   style={{ width: '100%', padding: '8px 10px', border: '1px solid #d1d5db', borderRadius: 6 }}
@@ -170,7 +173,7 @@ export default function AIBenchmarkPage() {
               </div>
               <div style={{ minWidth: 120 }}>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 4, color: '#374151' }}>Top N</label>
-                <input
+                <input data-ai-field="topN"
                   type="number"
                   min="1"
                   value={topN}
@@ -198,7 +201,7 @@ export default function AIBenchmarkPage() {
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 12 }}>
               <div style={{ minWidth: 160 }}>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 4, color: '#374151' }}>Horizon (months)</label>
-                <input
+                <input data-ai-field="horizonMonths"
                   type="number"
                   min="1"
                   value={horizonMonths}
@@ -208,7 +211,7 @@ export default function AIBenchmarkPage() {
               </div>
               <div style={{ flex: 1, minWidth: 240 }}>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 4, color: '#374151' }}>Notes (optional)</label>
-                <input
+                <input data-ai-field="notes"
                   type="text"
                   value={notes}
                   placeholder="Macroeconomic context, regional issues..."
@@ -236,7 +239,7 @@ export default function AIBenchmarkPage() {
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 12 }}>
               <div style={{ minWidth: 160 }}>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 4, color: '#374151' }}>Top N units</label>
-                <input
+                <input data-ai-field="bpTopN"
                   type="number"
                   min="3"
                   max="20"
@@ -265,7 +268,7 @@ export default function AIBenchmarkPage() {
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 12 }}>
               <div style={{ minWidth: 160 }}>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 4, color: '#374151' }}>Unit ID (optional)</label>
-                <input
+                <input data-ai-field="laborUnitId"
                   type="number"
                   value={laborUnitId}
                   placeholder="leave blank for all"
@@ -275,7 +278,7 @@ export default function AIBenchmarkPage() {
               </div>
               <div style={{ minWidth: 200 }}>
                 <label style={{ display: 'block', fontSize: 12, fontWeight: 600, marginBottom: 4, color: '#374151' }}>Target reduction %</label>
-                <input
+                <input data-ai-field="laborTargetPct"
                   type="number"
                   min="1"
                   max="50"
@@ -304,6 +307,6 @@ export default function AIBenchmarkPage() {
 
         <ResultBlock result={result} error={error} />
       </div>
-    </div>
+    </div></NativeAIControls>
   );
 }

@@ -23,18 +23,17 @@ router.post('/match', async (req, res) => {
       return res.status(400).json({ error: 'mentee_unit_id required' });
     }
 
-    let mentee = null;
-    let candidates = [];
-    try { mentee = await FranchiseUnit.findByPk(mentee_unit_id); } catch (_) {}
-    try {
-      candidates = await FranchiseUnit.findAll({ limit: 50 });
-    } catch (_) {}
-    candidates = candidates.filter(c => c.id !== mentee_unit_id);
+    if (!/^\d+$/.test(String(mentee_unit_id)) || Number(mentee_unit_id) < 1) {
+      return res.status(400).json({ error: 'mentee_unit_id must select an actual saved unit.' });
+    }
+    const mentee = await FranchiseUnit.findByPk(mentee_unit_id);
+    if (!mentee) return res.status(404).json({ error: 'Mentee unit not found.' });
+    const candidates = (await FranchiseUnit.findAll({ limit: 50 }))
+      .filter(candidate => String(candidate.id) !== String(mentee.id));
 
     // Pull simple revenue snapshot per candidate (best-effort)
     const peerSnapshots = await Promise.all(candidates.slice(0, 25).map(async u => {
-      let r = [];
-      try { r = await RevenueRecord.findAll({ where: { unit_id: u.id }, limit: 6, order: [['period', 'DESC']] }); } catch (_) {}
+      const r = await RevenueRecord.findAll({ where: { franchiseUnitId: u.id }, limit: 6, order: [['year', 'DESC'], ['id', 'DESC']] });
       const avg = r.length ? r.reduce((s, x) => s + Number(x.revenue || 0), 0) / r.length : null;
       return { id: u.id, name: u.name, location: u.location || u.city || null, avg_recent_revenue: avg };
     }));
@@ -43,7 +42,7 @@ router.post('/match', async (req, res) => {
 mentor unit based on focus area, performance gap (mentor should outperform mentee in target area), geography,
 and complementarity. Return STRICT JSON only.`;
 
-    const userPrompt = `Mentee unit: ${mentee ? JSON.stringify({ id: mentee.id, name: mentee.name, location: mentee.location, monthly_revenue: mentee.monthly_revenue }) : mentee_unit_id}
+    const userPrompt = `Mentee unit: ${JSON.stringify({ id: mentee.id, name: mentee.name, location: mentee.location, monthly_revenue: mentee.monthlyRevenue })}
 Focus area: ${focus_area || 'general performance improvement'}
 Candidate mentors: ${JSON.stringify(peerSnapshots)}
 
@@ -68,8 +67,7 @@ Return JSON:
 // GET /api/peer-mentoring/units - candidate pool
 router.get('/units', async (_req, res) => {
   try {
-    let units = [];
-    try { units = await FranchiseUnit.findAll({ limit: 200 }); } catch (_) {}
+    const units = await FranchiseUnit.findAll({ limit: 200 });
     res.json(units);
   } catch (err) {
     res.status(500).json({ error: err.message });

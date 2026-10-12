@@ -1,3 +1,4 @@
+import FormattedAIReport from "../components/FormattedAIReport";
 import { useEffect, useState } from 'react';
 import { getAll, runAlertScan, runAnomalyScan, runBenchmarkRecompute } from '../services/api';
 
@@ -16,8 +17,8 @@ export default function AlertsPage() {
     try {
       const r = await getAll('alert-records');
       const payload = r.data;
-      setAlerts(payload.data || []);
-      setTotalPages(payload.pagination?.totalPages || 1);
+      setAlerts(Array.isArray(payload) ? payload : Array.isArray(payload?.data) ? payload.data : []);
+      setTotalPages(payload?.pagination?.totalPages || 1);
     } catch (e) { console.error(e); }
     setLoading(false);
   };
@@ -62,7 +63,7 @@ export default function AlertsPage() {
 
       {lastScanResult && (
         <div style={{ background: '#0f172a', color: '#e2e8f0', padding: 12, borderRadius: 8, marginBottom: 16, fontSize: 12, overflow: 'auto', maxHeight: 240 }}>
-          <pre>{JSON.stringify(lastScanResult, null, 2)}</pre>
+          <FormattedAIReport response={lastScanResult} />
         </div>
       )}
 

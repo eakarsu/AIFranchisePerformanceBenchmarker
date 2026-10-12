@@ -1,3 +1,4 @@
+import AIReportLibrary from "./components/AIReportLibrary";
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -63,7 +64,7 @@ function ProtectedRoute({ children }) {
 
 export default function App() {
   return (
-    <AuthProvider>
+    <><AIReportLibrary floating /><AuthProvider>
       <BrowserRouter>
         <Routes>
         <Route path="/insights/timeline" element={<ProtectedRoute><TimelineView /></ProtectedRoute>} />
@@ -108,6 +109,6 @@ export default function App() {
           <Route path="/gap-no-franchisee-onboarding-workflow" element={<GapNoFranchiseeOnboardingWorkflow />} />
 </Routes>
       </BrowserRouter>
-    </AuthProvider>
+    </AuthProvider></>
   );
 }

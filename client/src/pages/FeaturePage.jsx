@@ -449,7 +449,7 @@ export default function FeaturePage({ feature }) {
     setLoading(true);
     try {
       const { data } = await getAll(feature.key);
-      setItems(Array.isArray(data) ? data : []);
+      setItems(Array.isArray(data) ? data : Array.isArray(data?.data) ? data.data : []);
     } catch (err) {
       console.error('Error fetching items:', err);
       setItems([]);

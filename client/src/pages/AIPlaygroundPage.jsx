@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { aiChat } from '../services/api';
 import api from '../services/api';
+import FormattedAIReport from '../components/FormattedAIReport';
 
 const AI_FUNCTIONS = [
   { value: 'general', label: 'General', endpoint: '/ai/chat', placeholder: 'Ask anything...' },
@@ -310,7 +311,7 @@ export default function AIPlaygroundPage() {
   const [selectedFunction, setSelectedFunction] = useState('general');
   const [prompt, setPrompt] = useState('');
   const [context, setContext] = useState('');
-  const [response, setResponse] = useState('');
+  const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [history, setHistory] = useState([]);
@@ -324,7 +325,7 @@ export default function AIPlaygroundPage() {
     if (!prompt.trim()) return;
     setLoading(true);
     setError('');
-    setResponse('');
+    setResponse(null);
 
     try {
       let res;
@@ -371,11 +372,7 @@ export default function AIPlaygroundPage() {
           res = await aiChat(prompt, context || undefined);
       }
 
-      const result =
-        res.data?.response ||
-        res.data?.result ||
-        res.data?.message ||
-        JSON.stringify(res.data, null, 2);
+      const result = res.data?.response ?? res.data?.result ?? res.data?.message ?? res.data;
       setResponse(result);
 
       setHistory((prev) => [
@@ -433,6 +430,20 @@ export default function AIPlaygroundPage() {
         <div>
           <div style={styles.card}>
             <h2 style={styles.cardTitle}>Configure Request</h2>
+            <div className="ai-preset-bar">
+              <strong>Complete examples</strong>
+              <div className="ai-actions">{['Unit performance', 'Customer feedback', 'Operations plan'].map((label, index) => (
+                <button key={label} type="button" className="btn btn-secondary" disabled={loading} onClick={() => {
+                  const scenario = [
+                    'A three-unit franchise group saw revenue fall 8% last month while customer ratings stayed steady. Identify possible causes, the data needed to confirm them, and practical next steps.',
+                    'Recent customer comments mention slow lunch service at two locations and friendly staff at a third. Summarize themes, avoid inventing counts, and suggest follow-up actions.',
+                    'A regional manager has two weeks to review staffing, supply costs, and service quality across four units. Draft a prioritized plan with owners, risks, and success measures.',
+                  ][index];
+                  setPrompt(scenario);
+                  setContext(`Illustrative franchise scenario: ${label.toLowerCase()}. No source records were supplied. Treat all figures as examples and identify evidence needed before decisions.`);
+                }}>{label}</button>
+              ))}</div>
+            </div>
 
             <label style={styles.label}>AI Function</label>
             <select
@@ -519,7 +530,7 @@ export default function AIPlaygroundPage() {
             {error && <div style={styles.errorBox}>{error}</div>}
           </div>
 
-          <AIResponseDisplay response={response} onCopy={handleCopyResponse} />
+          {response !== null && <FormattedAIReport response={response} title="AI response" />}
         </div>
 
         {/* Right Column: Session History */}
@@ -561,7 +572,7 @@ export default function AIPlaygroundPage() {
                 <div style={styles.historyFunc}>{item.funcLabel}</div>
                 <div style={styles.historyPrompt}>{item.prompt}</div>
                 <div style={styles.historyResponse}>
-                  {item.response?.substring(0, 80)}...
+                  {(typeof item.response === 'string' ? item.response : JSON.stringify(item.response)).substring(0, 80)}...
                 </div>
                 <div style={styles.historyTime}>
                   {formatTime(item.timestamp)}

@@ -4,7 +4,7 @@
 const express = require('express');
 const authMiddleware = require('../middleware/auth');
 const { callAI } = require('../services/openRouterService');
-const { ComplianceRecord, FranchiseUnit } = require('../models');
+const { FranchiseUnit } = require('../models');
 
 const router = express.Router();
 router.use(authMiddleware);
@@ -23,8 +23,8 @@ router.post('/scan', async (req, res) => {
       return res.status(400).json({ error: 'unit_id and at least one image_url required' });
     }
 
-    let unit = null;
-    try { unit = await FranchiseUnit.findByPk(unit_id); } catch (_) {}
+    const unit = await FranchiseUnit.findByPk(unit_id);
+    if (!unit) return res.status(404).json({ error: 'Franchise unit not found.' });
 
     const systemPrompt = `You are a brand-standard compliance auditor for a multi-unit franchise. You will
 receive image URLs from a franchisee store and a brand SOP summary. Compare against typical brand standards
@@ -57,17 +57,11 @@ Return JSON:
     const raw = await callAI(systemPrompt, userPrompt);
     const parsed = parseJSON(raw);
 
-    try {
-      await ComplianceRecord.create({
-        unit_id,
-        audit_type: 'brand_standard_visual',
-        score: parsed.overall_score_0_100 || null,
-        findings: parsed,
-        audited_at: new Date()
-      });
-    } catch (_) {}
-
-    res.json({ unit_id, image_count: image_urls.length, audit: parsed });
+    // This text-only helper prepares an advisory template; it has no native
+    // visual-audit receipt schema and does not establish observed image findings.
+    res.json({ unit_id: unit.id, image_count: image_urls.length, audit: parsed,
+      artifact_type: 'advisory_template', observed_image_analysis: false, persisted: false,
+      history_unavailable_reason: 'Native visual-audit receipts are not implemented.' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -76,15 +70,10 @@ Return JSON:
 // GET /api/brand-standard-audit/history?unit_id=...
 router.get('/history', async (req, res) => {
   try {
-    const where = { audit_type: 'brand_standard_visual' };
-    if (req.query.unit_id) where.unit_id = req.query.unit_id;
-    let rows = [];
-    try {
-      rows = await ComplianceRecord.findAll({
-        where, limit: 50, order: [['audited_at', 'DESC']]
-      });
-    } catch (_) {}
-    res.json(rows);
+    return res.status(501).json({
+      error: 'Native visual-audit history is not implemented; compliance records are not visual-audit receipts.',
+      code: 'VISUAL_AUDIT_HISTORY_UNAVAILABLE'
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
