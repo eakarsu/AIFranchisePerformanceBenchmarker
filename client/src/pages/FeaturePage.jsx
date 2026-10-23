@@ -658,7 +658,7 @@ export default function FeaturePage({ feature }) {
       {/* Detail Modal (centered) */}
       {showDetail && selectedItem && (
         <div className="modal-overlay" onClick={() => { setShowDetail(false); setSelectedItem(null); }}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
+          <div className="modal" role="dialog" aria-modal="true" onClick={(e) => e.stopPropagation()}>
             <div className="detail-header">
               <h2>{feature.label} Details</h2>
               <button
@@ -691,6 +691,9 @@ export default function FeaturePage({ feature }) {
               </button>
               <button className="btn btn-danger" onClick={handleDelete}>
                 Delete
+              </button>
+              <button className="btn btn-secondary btn-cancel" onClick={() => { setShowDetail(false); setSelectedItem(null); }}>
+                Cancel
               </button>
               <button className="btn btn-ai" onClick={handleAiAnalyze}>
                 AI Analyze

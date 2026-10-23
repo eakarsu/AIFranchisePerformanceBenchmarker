@@ -777,6 +777,7 @@ app.get('/api/dashboard/stats', auth, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
+app.use('/api/feature-pack', require('./routes/featurePack'));
 app.get('/api/health', (req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));
 app.use('/api/territory-optimization', require('./routes/territoryOptimization'));
 app.use('/api/brand-standard-audit', require('./routes/brandStandardAudit'));
